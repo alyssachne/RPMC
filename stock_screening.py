@@ -5,16 +5,24 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 import requests
 
+
+"""**医药消费低估高增长策略**
+
+股票池：沪深300+中证500成分股，且行业为医药生物、食品饮料。
+
+选股条件：动态PE在30倍以下，营收同比大于0、净利润同比大于20%以上。
+
+排序逻辑：按照ROA和市值综合排序，ROA越大排在越前面，市值越大排在越前面，且ROA和市值对排序影响的权重是1:1。
+
+调仓逻辑：策略用轮动的方式进行买卖，每10日触发一次选股条件，符合条件，且在前3名的股票会继续持有，不符合条件，且掉出前3名股票就会卖掉。"""
+
+
 file_location = '/Users/shuaijia/Desktop/找工/RPMC/health_care_fundamental.xlsx'
 df_PE_FY1 = pd.read_excel(file_location, sheet_name='PE_FY1')
 df_Sales = pd.read_excel(file_location, sheet_name='Sales')
-df_PS = pd.read_excel(file_location, sheet_name='PS')
-df_EPS = pd.read_excel(file_location, sheet_name='EPS')
 df_NI = pd.read_excel(file_location, sheet_name='NI')
 df_ROA = pd.read_excel(file_location, sheet_name='ROA')
-df_Assets = pd.read_excel(file_location, sheet_name='Assets')
-df_PB = pd.read_excel(file_location, sheet_name='PB')
-df_PE = pd.read_excel(file_location, sheet_name='PE')
+
 
 # Using beautifulsoup to scrape the EPS data from the website
 
