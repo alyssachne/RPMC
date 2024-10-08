@@ -314,7 +314,7 @@ if __name__ == "__main__":
         merged_df = merged_df.rename(columns={'sales': f'{ticker}_sales','NI': f'{ticker}_NI',
                                               'ROA': f'{ticker}_ROA','PE_FY1': f'{ticker}_PE_FY1'})
         
-        merged_df.to_csv(f'/Users/shuaijia/Desktop/找工/RPMC/RPMC/{ticker}_data.csv', index=False)
+        #merged_df.to_csv(f'/Users/shuaijia/Desktop/找工/RPMC/RPMC/{ticker}_data.csv', index=False)
         
         if count != 0:
             all_tickers_df = pd.merge(all_tickers_df, merged_df , on = 'Date', how = 'inner')
@@ -325,9 +325,9 @@ if __name__ == "__main__":
         print(f'{count} out of {len(ticker_lst)} has been merged')
 
     # Save merged_df as CSV
-    all_tickers_df.to_csv('/Users/shuaijia/Desktop/找工/RPMC/RPMC/all_tickers_data.csv', index=False)
+    #all_tickers_df.to_csv('/Users/shuaijia/Desktop/找工/RPMC/RPMC/all_tickers_data.csv', index=False)
 
-    print(merged_df)
+    #print(merged_df)
 
     # 把indicator的数据从上一个财报发布日拓展到现在
     # 将不同的indicators储存为.csv
