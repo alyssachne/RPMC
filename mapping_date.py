@@ -77,10 +77,18 @@ class preprocess_indicator:
 
         # Sort both DataFrames by Date
         df_ni = df_ni.sort_values(by='Date')
+        # Save df_ni as CSV
+        #df_ni.to_csv('/Users/shuaijia/Desktop/找工/RPMC/RPMC/df_ni.csv', index=False)
         y_finance_dates = y_finance_dates.sort_values(by='Date')
 
         # We need to define the next NI date for each NI period
         df_ni['next_NI_date'] = df_ni['Date'].shift(-1)
+
+        # Find the last date in y_finance_dates
+        last_date = y_finance_dates['Date'].iloc[-1]
+
+        # Set the next_roa_date for the last row in df_roa as the last date
+        df_ni.loc[df_ni.index[-1], 'next_NI_date'] = last_date
 
         # Now, map each date in y_finance_dates to its corresponding NI value
         def map_NI(row, df_ni):
@@ -88,7 +96,7 @@ class preprocess_indicator:
             # Convert row['Date'] to a pandas Timestamp for comparison
             row_date = pd.Timestamp(row['Date'])
             # Filter to find the appropriate NI range (current <= Date < next)
-            current_NI = df_ni[(df_ni['Date'] <= row_date) & (row_date < df_ni['next_NI_date'])]
+            current_NI = df_ni[(df_ni['Date'] < row_date) & (row_date <= df_ni['next_NI_date'])]
             if not current_NI.empty:
                 return current_NI['NI'].values[0]
             return None  # If no NI is found, return None
@@ -147,10 +155,17 @@ class preprocess_indicator:
 
         # Sort both DataFrames by Date
         df_sales = df_sales.sort_values(by='Date')
+        #df_sales.to_csv('/Users/shuaijia/Desktop/找工/RPMC/RPMC/df_sales.csv', index=False)
         y_finance_dates = y_finance_dates.sort_values(by='Date')
 
         # We need to define the next sales date for each sales period
         df_sales['next_sales_date'] = df_sales['Date'].shift(-1)
+
+        # Find the last date in y_finance_dates
+        last_date = y_finance_dates['Date'].iloc[-1]
+
+        # Set the next_roa_date for the last row in df_roa as the last date
+        df_sales.loc[df_sales.index[-1], 'next_sales_date'] = last_date
 
         # Now, map each date in y_finance_dates to its corresponding sales value
         def map_sales(row, df_sales):
@@ -158,7 +173,7 @@ class preprocess_indicator:
             # Convert row['Date'] to a pandas Timestamp for comparison
             row_date = pd.Timestamp(row['Date'])
             # Filter to find the appropriate sales range (current <= Date < next)
-            current_sales = df_sales[(df_sales['Date'] <= row_date) & (row_date < df_sales['next_sales_date'])]
+            current_sales = df_sales[(df_sales['Date'] < row_date) & (row_date <= df_sales['next_sales_date'])]
             if not current_sales.empty:
                 return current_sales['sales'].values[0]
             return None  # If no sales is found, return None
@@ -225,18 +240,24 @@ class preprocess_indicator:
 
         # Sort both DataFrames by Date
         df_roa = df_roa.sort_values(by='Date')
+        #df_roa.to_csv('/Users/shuaijia/Desktop/找工/RPMC/RPMC/df_roa.csv', index=False)
         y_finance_dates = y_finance_dates.sort_values(by='Date')
 
         # We need to define the next ROA date for each ROA period
         df_roa['next_roa_date'] = df_roa['Date'].shift(-1)
+        # Find the last date in y_finance_dates
+        last_date = y_finance_dates['Date'].iloc[-1]
+
+        # Set the next_roa_date for the last row in df_roa as the last date
+        df_roa.loc[df_roa.index[-1], 'next_roa_date'] = last_date
 
         # Now, map each date in y_finance_dates to its corresponding ROA value
         def map_roa(row, df_roa):
 
             # Convert row['Date'] to a pandas Timestamp for comparison
             row_date = pd.Timestamp(row['Date'])
-            # Filter to find the appropriate ROA range (current <= Date < next)
-            current_roa = df_roa[(df_roa['Date'] <= row_date) & (row_date < df_roa['next_roa_date'])]
+            # Filter to find the appropriate ROA range (current < Date <= next)
+            current_roa = df_roa[(df_roa['Date'] < row_date) & (row_date <= df_roa['next_roa_date'])]
             if not current_roa.empty:
                 return current_roa['ROA'].values[0]
             return None  # If no ROA is found, return None
@@ -293,6 +314,8 @@ if __name__ == "__main__":
         merged_df = merged_df.rename(columns={'sales': f'{ticker}_sales','NI': f'{ticker}_NI',
                                               'ROA': f'{ticker}_ROA','PE_FY1': f'{ticker}_PE_FY1'})
         
+        merged_df.to_csv(f'/Users/shuaijia/Desktop/找工/RPMC/RPMC/{ticker}_data.csv', index=False)
+        
         if count != 0:
             all_tickers_df = pd.merge(all_tickers_df, merged_df , on = 'Date', how = 'inner')
         else:
@@ -300,6 +323,9 @@ if __name__ == "__main__":
         count += 1
 
         print(f'{count} out of {len(ticker_lst)} has been merged')
+
+    # Save merged_df as CSV
+    all_tickers_df.to_csv('/Users/shuaijia/Desktop/找工/RPMC/RPMC/all_tickers_data.csv', index=False)
 
     print(merged_df)
 
