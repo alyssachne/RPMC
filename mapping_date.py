@@ -6,14 +6,14 @@ import json
 
 def read_fundamental_sheet(indicator):
     
-    file_path = '/Users/shuaijia/Desktop/找工/RPMC/RPMC/health_care_fundamental.xlsx'
+    file_path = 'data/health_care_fundamental.xlsx'
 
     df = pd.read_excel(file_path, sheet_name=indicator)
 
     return df
 
 def read_earnings_dates():
-    file_path = '/Users/shuaijia/Desktop/找工/RPMC/RPMC/Earnings_dates.json'
+    file_path = 'data/Earnings_dates.json'
     
     with open(file_path, 'r') as f:
         earnings_dates = json.load(f)
@@ -292,7 +292,7 @@ class preprocess_indicator:
 
 if __name__ == "__main__":
     
-    file_path = '/Users/shuaijia/Desktop/找工/RPMC/RPMC/health_care_fundamental.xlsx'
+    file_path = 'data/health_care_fundamental.xlsx'
     sheet_name = 'PE_FY1'
     tickers = load_tickers(file_path, sheet_name)
 

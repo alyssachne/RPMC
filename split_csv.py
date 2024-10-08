@@ -81,5 +81,5 @@ def main(csv_path):
         create_csv(col, df, tickers)
 
 if __name__ == "__main__":
-    csv_path = 'all_tickers_data.csv'
+    csv_path = 'data/all_tickers_data.csv'
     main(csv_path=csv_path)

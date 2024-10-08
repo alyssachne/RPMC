@@ -34,7 +34,7 @@ def get_a_release_date(url,ticker):
 
 def get_all_release_dates():
     
-    file_path = '/Users/shuaijia/Desktop/找工/RPMC/RPMC/health_care_fundamental.xlsx'
+    file_path = 'data/health_care_fundamental.xlsx'
     sheet_name = 'PE_FY1'
     tickers = load_tickers(file_path, sheet_name)
     count = 0
@@ -51,7 +51,7 @@ def get_all_release_dates():
         except:
             pass
     
-    output_path = "/Users/shuaijia/Desktop/找工/RPMC/RPMC/Earnings_dates.json"
+    output_path = "data/Earnings_dates.json"
     with open(output_path, "w") as f:
         json.dump(dates, f)
 
