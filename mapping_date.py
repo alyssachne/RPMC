@@ -296,38 +296,49 @@ if __name__ == "__main__":
     sheet_name = 'PE_FY1'
     tickers = load_tickers(file_path, sheet_name)
 
-    ticker_lst = tickers[:3]
+    ticker_lst = tickers
+    #ticker_lst.append(tickers[57])
 
     count = 0
-    all_tickers_df = pd.DataFrame()
+    #all_tickers_df = pd.DataFrame()
+    ni_ratio_merged = pd.DataFrame()
+    sales_ratio_merged = pd.DataFrame()
+    ROA_merged = pd.DataFrame()
+    PE_FY1_merged = pd.DataFrame()
 
     for ticker in ticker_lst:
         stock_indicator = preprocess_indicator(ticker)
         ni_ratio_ticker = stock_indicator.calculate_ni_ratio()
         sales_ratio_ticker = stock_indicator.calculate_sales_ratio()
-        ROA_ratio_ticker = stock_indicator.map_ROA()
-        PE_FY1_ratio_ticker = stock_indicator.map_PE_FY1()
+        ROA_ticker = stock_indicator.map_ROA()
+        PE_FY1_ticker = stock_indicator.map_PE_FY1()
 
-        merged_df = pd.merge(sales_ratio_ticker, ni_ratio_ticker, on='Date', how='inner')
-        merged_df = pd.merge(merged_df, ROA_ratio_ticker, on='Date', how='inner')
-        merged_df = pd.merge(merged_df, PE_FY1_ratio_ticker, on='Date', how='inner')
-        merged_df = merged_df.rename(columns={'sales': f'{ticker}_sales','NI': f'{ticker}_NI',
-                                              'ROA': f'{ticker}_ROA','PE_FY1': f'{ticker}_PE_FY1'})
         
+        ni_ratio_ticker = ni_ratio_ticker.rename(columns={'NI': f'{ticker}'})
+        sales_ratio_ticker = sales_ratio_ticker.rename(columns={'sales': f'{ticker}'})
+        ROA_ticker = ROA_ticker.rename(columns={'ROA': f'{ticker}'})
+        PE_FY1_ticker = PE_FY1_ticker.rename(columns={'PE_FY1': f'{ticker}'})
         #merged_df.to_csv(f'/Users/shuaijia/Desktop/找工/RPMC/RPMC/{ticker}_data.csv', index=False)
         
         if count != 0:
-            all_tickers_df = pd.merge(all_tickers_df, merged_df , on = 'Date', how = 'inner')
+            ni_ratio_merged = pd.merge(ni_ratio_merged, ni_ratio_ticker , on = 'Date', how = 'outer')
+            sales_ratio_merged = pd.merge(sales_ratio_merged, sales_ratio_ticker , on = 'Date', how = 'outer')
+            ROA_merged = pd.merge(ROA_merged, ROA_ticker , on = 'Date', how = 'outer')
+            PE_FY1_merged = pd.merge(PE_FY1_merged, PE_FY1_ticker , on = 'Date', how = 'outer')
         else:
-            all_tickers_df = merged_df
+            ni_ratio_merged = ni_ratio_ticker
+            sales_ratio_merged = sales_ratio_ticker
+            ROA_merged = ROA_ticker
+            PE_FY1_merged = PE_FY1_ticker
         count += 1
 
         print(f'{count} out of {len(ticker_lst)} has been merged')
 
     # Save merged_df as CSV
-    #all_tickers_df.to_csv('/Users/shuaijia/Desktop/找工/RPMC/RPMC/all_tickers_data.csv', index=False)
-
-    #print(merged_df)
+    ni_ratio_merged.to_csv('/Users/shuaijia/Desktop/找工/RPMC/RPMC/ni_ratio.csv', index=False)
+    sales_ratio_merged.to_csv('/Users/shuaijia/Desktop/找工/RPMC/RPMC/sales_ratio.csv', index=False)
+    ROA_merged.to_csv('/Users/shuaijia/Desktop/找工/RPMC/RPMC/roa.csv', index=False)
+    PE_FY1_merged.to_csv('/Users/shuaijia/Desktop/找工/RPMC/RPMC/PE_FY1.csv', index=False)
 
     # 把indicator的数据从上一个财报发布日拓展到现在
     # 将不同的indicators储存为.csv
