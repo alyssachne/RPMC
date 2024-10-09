@@ -297,6 +297,9 @@ if __name__ == "__main__":
     tickers = load_tickers(file_path, sheet_name)
 
     ticker_lst = tickers
+    ticker_lst = [ticker for ticker in ticker_lst if ticker not in ['DXCM','GEHC','INCY','MRNA','PODD','SOLV']]
+
+    
     #ticker_lst.append(tickers[57])
 
     count = 0
@@ -339,6 +342,3 @@ if __name__ == "__main__":
     sales_ratio_merged.to_csv('/Users/shuaijia/Desktop/找工/RPMC/RPMC/sales_ratio.csv', index=False)
     ROA_merged.to_csv('/Users/shuaijia/Desktop/找工/RPMC/RPMC/roa.csv', index=False)
     PE_FY1_merged.to_csv('/Users/shuaijia/Desktop/找工/RPMC/RPMC/PE_FY1.csv', index=False)
-
-    # 把indicator的数据从上一个财报发布日拓展到现在
-    # 将不同的indicators储存为.csv
