@@ -1,4 +1,4 @@
-from get_yfinance import api_n_year_data
+from utils.preprocess.get_yfinance import api_n_year_data
 import pandas as pd
 
 def load_tickers(file_location,sheet_name):

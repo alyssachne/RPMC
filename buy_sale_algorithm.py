@@ -1,7 +1,7 @@
 import math
 from loguru import logger
 class Trader:
-    def __init__(self, options, cash_level, num_holding, total_assets):
+    def __init__(self, options, cash_level, num_holding, total_assets, stock_price):
         # for now assume options is sorted from highest to lowest
         # TODO: use dictionary to store options and their scores
         self.options = options
@@ -10,15 +10,22 @@ class Trader:
         self.total_assets = total_assets
         self.cash = total_assets
         # TODO: for now assume stock price is 100, in the future need to update it
-        self.stock_price = 100
+        self.stock_price = stock_price
         self.init_holding()
-        
 
     def get_stock_price(self, stock):
-        return self.stock_price
+        return self.stock_price[stock].values[0]
     
-    def update_stock_price(self, stock, price):
-        self.stock_price = price
+    def update_stock_prices(self, prices):
+        self.stock_price = prices
+        logger.info("INFO", f"Load all stock prices")
+        self.total_assets = sum([self.holdings[option] * self.get_stock_price(option) for option in self.holdings.keys()]) + self.cash
+        logger.info(f"Total assets: {self.total_assets}")
+        self.check_cash_level()
+
+    def update_single_stock_price(self, stock, price):
+        # update the df
+        self.stock_price[stock] = price
         logger.info("INFO", f"Stock price of {stock} is updated to {price}")
         self.total_assets = sum([self.holdings[option] * self.get_stock_price(option) for option in self.holdings.keys()]) + self.cash
         logger.info(f"Total assets: {self.total_assets}")
@@ -70,6 +77,15 @@ class Trader:
         self.options = new_options
         self.init_holding()
 
+    def get_total_assets(self):
+        return self.total_assets
+    
+    def get_each_holding_value(self):
+        results = {}
+        for option in self.holdings.keys():
+            results[option] = self.holdings[option] * self.get_stock_price(option)
+        results['cash'] = self.cash
+        return results
 
 if __name__ == "__main__":
     options = ['AAPL', 'AMAZ', 'GOOGL', 'MSFT', 'TSLA', 'EBAY', 'FB', 'TWTR', 'NFLX']

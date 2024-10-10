@@ -1,7 +1,6 @@
 # Map the release date to quarterly fundamental data  
 import pandas as pd
-from get_yfinance import api_n_year_data
-import datetime
+from utils.preprocess.get_yfinance import api_n_year_data
 import json
 
 def read_fundamental_sheet(indicator):

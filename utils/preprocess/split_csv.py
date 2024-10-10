@@ -1,8 +1,5 @@
 import pandas as pd
 
-import pandas as pd
-import numpy as np
-
 def create_csv(indicator_name, df, tickers):
     # Step 1: Create the file name from the indicator_name
     file_name = f"{indicator_name}.csv"
