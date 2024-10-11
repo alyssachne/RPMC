@@ -1,3 +1,4 @@
+import datetime
 from buy_sale_algorithm import Trader
 import pandas as pd
 import json
@@ -58,6 +59,7 @@ class Simulator:
         df = pd.DataFrame(data)
         
         # Write DataFrame to CSV file
-        df.to_csv('data/trader_results.csv', index=False)
+        timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        df.to_csv(f'data/results/trader_results_{timestamp}.csv', index=False)
 if __name__ == "__main__":
     simulator = Simulator('data/daily_tickers.json', 'data/price_df_all_tickers.csv', 0.1, 10000)
