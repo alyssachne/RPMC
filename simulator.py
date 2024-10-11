@@ -3,9 +3,8 @@ import pandas as pd
 import json
 from loguru import logger
 class Simulator:
-    def __init__(self, ticker_path, price_path, cash_level, num_holding, total_assets):
+    def __init__(self, ticker_path, price_path, cash_level: float, total_assets: int):
         self.cash_level = cash_level
-        self.num_holding = num_holding
         self.total_assets = total_assets
         self.load_tickers(ticker_path)
         self.load_price(price_path)
@@ -33,19 +32,32 @@ class Simulator:
     def load_trader(self):
         first_options = self.tickers[self.today]
         first_price = self.price_df[self.price_df['Date'] == self.today]
-        self.trader = Trader(first_options, self.cash_level, self.num_holding, self.total_assets, first_price)
+        self.trader = Trader(options=first_options, cash_level=self.cash_level, total_assets=self.total_assets, stock_price=first_price)
         current_total_assets = self.trader.get_total_assets()
         current_distribution = self.trader.get_each_holding_value()
         logger.info(f"Current total assets: {current_total_assets}, \n Current distribution: {current_distribution}")
 
     def run(self):
+        data = []
         for date in self.dates[1:]:
-            # options = self.tickers[date]
+            options = self.tickers[date]
             self.today = date
             price = self.price_df[self.price_df['Date'] == date]
             self.trader.update_stock_prices(price)
+            self.trader.update_options(options)
             current_total_assets = self.trader.get_total_assets()
             current_distribution = self.trader.get_each_holding_value()
-            logger.info(f"At {date}, Current total assets: {current_total_assets}, \n Current distribution: {current_distribution}")
+            # Append data to the list
+            data.append({
+                "Date": date,
+                "Total Assets": current_total_assets,
+                "Distribution": current_distribution
+            })
+    
+        # Convert list of dictionaries to a DataFrame
+        df = pd.DataFrame(data)
+        
+        # Write DataFrame to CSV file
+        df.to_csv('data/trader_results.csv', index=False)
 if __name__ == "__main__":
-    simulator = Simulator('data/daily_tickers.json', 'data/price_df_all_tickers.csv', 0.1, 3, 10000)
+    simulator = Simulator('data/daily_tickers.json', 'data/price_df_all_tickers.csv', 0.1, 10000)

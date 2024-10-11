@@ -1,12 +1,14 @@
 import math
 from loguru import logger
 class Trader:
-    def __init__(self, options, cash_level, num_holding, total_assets, stock_price):
+    def __init__(self, options: list, cash_level: float, total_assets: float, stock_price, num_holding: int =None):
         # for now assume options is sorted from highest to lowest
         # TODO: use dictionary to store options and their scores
+
+        # stocks I can buy
         self.options = options
         self.cash_level = cash_level
-        self.num_holding = num_holding
+        self.num_holding = num_holding if num_holding is not None else len(options)
         self.total_assets = total_assets
         self.cash = total_assets
         # TODO: for now assume stock price is 100, in the future need to update it
@@ -21,7 +23,6 @@ class Trader:
         logger.info("INFO", f"Load all stock prices")
         self.total_assets = sum([self.holdings[option] * self.get_stock_price(option) for option in self.holdings.keys()]) + self.cash
         logger.info(f"Total assets: {self.total_assets}")
-        self.check_cash_level()
 
     def update_single_stock_price(self, stock, price):
         # update the df
@@ -34,25 +35,25 @@ class Trader:
     def get_stock_shares(self, stock, total_value):
         # round up if share is not integer 
         # -> cash level is guaranteed to be less than self.cash_level
-        return math.ceil(total_value / self.get_stock_price(stock))
-
-    def _update_cash(self):
-        self.cash = self.total_assets - sum([self.holdings[option] * self.get_stock_price(option) for option in self.holdings.keys()])
+        shares = math.ceil(total_value / self.get_stock_price(stock))
+        value = shares * self.get_stock_price(stock)
+        if self.cash - value < 0:
+            shares = math.floor(self.cash / self.get_stock_price(stock))
+        return shares
         
     def init_holding(self):
         each_holding_value = (1 - self.cash_level) * self.total_assets / self.num_holding
-        self.holdings = {option: self.get_stock_shares(option, each_holding_value) for option in self.options[:self.num_holding]}
-        self._update_cash()
+        self.holdings = {option: 0 for option in self.options[:self.num_holding]}
+        for option in self.holdings.keys():
+            self.buy_stock(option, self.get_stock_shares(option, each_holding_value))
 
     def buy_stock(self, stock, shares):
         self.holdings[stock] += shares
         self.cash -= shares * self.get_stock_price(stock)
-        self.check_cash_level()
 
     def sell_stock(self, stock, shares):
         self.holdings[stock] -= shares
         self.cash += shares * self.get_stock_price(stock)
-        self.check_cash_level()
 
     def check_cash_level(self):
         # this number needs to be less than self.cash_level
@@ -70,12 +71,24 @@ class Trader:
         each_holding_value = extra_cash / self.num_holding
         logger.info(f"Each holding value: {each_holding_value}")
         for option in self.holdings.keys():
-            self.holdings[option] += self.get_stock_shares(option, each_holding_value)
-        self._update_cash()
+            self.buy_stock(option, self.get_stock_shares(option, each_holding_value))
 
     def update_options(self, new_options):
-        self.options = new_options
-        self.init_holding()
+        # stocks I should hold
+        for ticker in new_options[:self.num_holding]:
+            if ticker not in self.holdings.keys():
+                self.holdings[ticker] = 0
+
+        # remove stocks that are not in the new options
+        for ticker in list(self.holdings.keys()):
+            if ticker not in new_options:
+                self.sell_stock(ticker, self.holdings[ticker])
+                self.holdings.pop(ticker)
+        
+        # check cash level
+        if self.cash > self.total_assets * self.cash_level:
+            self.update_holding()
+
 
     def get_total_assets(self):
         return self.total_assets
