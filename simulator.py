@@ -54,6 +54,8 @@ class Simulator:
                 "Total Assets": current_total_assets,
                 "Distribution": current_distribution
             })
+
+        logger.info(f'Total transaction count is {self.trader.get_transaction_count()}')
     
         # Convert list of dictionaries to a DataFrame
         df = pd.DataFrame(data)

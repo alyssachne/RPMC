@@ -13,6 +13,7 @@ class Trader:
         self.cash = total_assets
         # TODO: for now assume stock price is 100, in the future need to update it
         self.stock_price = stock_price
+        self.transaction_count = 1
         self.init_holding()
 
     def get_stock_price(self, stock):
@@ -74,6 +75,7 @@ class Trader:
             self.buy_stock(option, self.get_stock_shares(option, each_holding_value))
 
     def update_options(self, new_options):
+        old_holdings = self.holdings.copy()
         # stocks I should hold
         for ticker in new_options[:self.num_holding]:
             if ticker not in self.holdings.keys():
@@ -89,6 +91,11 @@ class Trader:
         if self.cash > self.total_assets * self.cash_level:
             self.update_holding()
 
+        for holding, weight in self.holdings.items():
+            if (holding not in old_holdings and weight != 0) or (holding in old_holdings and weight != old_holdings[holding]):
+                self.transaction_count += 1
+                logger.info(f"current count: {self.transaction_count}, old_holding: {old_holdings}, new_holding: {self.holdings}")
+                break
 
     def get_total_assets(self):
         return self.total_assets
@@ -99,6 +106,9 @@ class Trader:
             results[option] = self.holdings[option] * self.get_stock_price(option)
         results['cash'] = self.cash
         return results
+    
+    def get_transaction_count(self):
+        return self.transaction_count
 
 if __name__ == "__main__":
     options = ['AAPL', 'AMAZ', 'GOOGL', 'MSFT', 'TSLA', 'EBAY', 'FB', 'TWTR', 'NFLX']
