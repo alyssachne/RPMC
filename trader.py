@@ -86,7 +86,8 @@ class Trader:
             if ticker not in new_options:
                 self.sell_stock(ticker, self.holdings[ticker])
                 self.holdings.pop(ticker)
-        
+
+        self.num_holding = len(self.holdings.keys())
         # check cash level
         if self.cash > self.total_assets * self.cash_level:
             self.update_holding()
@@ -105,6 +106,12 @@ class Trader:
         for option in self.holdings.keys():
             results[option] = self.holdings[option] * self.get_stock_price(option)
         results['cash'] = self.cash
+        return results
+    
+    def get_holding_weights(self):
+        results = {}
+        for option in self.holdings.keys():
+            results[option] = self.holdings[option]
         return results
     
     def get_transaction_count(self):

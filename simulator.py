@@ -1,5 +1,5 @@
 import datetime
-from buy_sale_algorithm import Trader
+from trader import Trader
 import pandas as pd
 import json
 from loguru import logger
@@ -52,7 +52,8 @@ class Simulator:
             data.append({
                 "Date": date,
                 "Total Assets": current_total_assets,
-                "Distribution": current_distribution
+                "Distribution": current_distribution,
+                "Weights": self.trader.get_holding_weights()
             })
 
         logger.info(f'Total transaction count is {self.trader.get_transaction_count()}')
@@ -62,6 +63,8 @@ class Simulator:
         
         # Write DataFrame to CSV file
         timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-        df.to_csv(f'data/results/trader_results_{timestamp}.csv', index=False)
+        df.to_csv(f'data/results/trader_results_{timestamp}_cash_level{str(self.cash_level)}.csv', index=False)
 if __name__ == "__main__":
     simulator = Simulator('data/daily_tickers.json', 'data/price_df_all_tickers.csv', 0.1, 10000)
+    simulator = Simulator('data/daily_tickers.json', 'data/price_df_all_tickers.csv', 0.05, 10000)
+    simulator = Simulator('data/daily_tickers.json', 'data/price_df_all_tickers.csv', 0.001, 10000)
