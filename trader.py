@@ -43,6 +43,7 @@ class Trader:
         return shares
         
     def init_holding(self):
+        # 平均分配：计算平均分配金额
         each_holding_value = (1 - self.cash_level) * self.total_assets / self.num_holding
         self.holdings = {option: 0 for option in self.options[:self.num_holding]}
         for option in self.holdings.keys():
@@ -69,12 +70,14 @@ class Trader:
         # buy more stocks for what we have
         extra_cash = self.cash - self.total_assets * self.cash_level
         logger.info(f"Extra cash beyond cash level: {extra_cash}")
+        # 平均分配：计算平均分配金额
         each_holding_value = extra_cash / self.num_holding
         logger.info(f"Each holding value: {each_holding_value}")
         for option in self.holdings.keys():
             self.buy_stock(option, self.get_stock_shares(option, each_holding_value))
 
     def update_options(self, new_options):
+        made_transaction = False
         old_holdings = self.holdings.copy()
         # stocks I should hold
         for ticker in new_options[:self.num_holding]:
@@ -84,6 +87,8 @@ class Trader:
         # remove stocks that are not in the new options
         for ticker in list(self.holdings.keys()):
             if ticker not in new_options:
+                made_transaction = True
+                self.transaction_count += 1
                 self.sell_stock(ticker, self.holdings[ticker])
                 self.holdings.pop(ticker)
 
@@ -92,11 +97,12 @@ class Trader:
         if self.cash > self.total_assets * self.cash_level:
             self.update_holding()
 
-        for holding, weight in self.holdings.items():
-            if (holding not in old_holdings and weight != 0) or (holding in old_holdings and weight != old_holdings[holding]):
-                self.transaction_count += 1
-                logger.info(f"current count: {self.transaction_count}, old_holding: {old_holdings}, new_holding: {self.holdings}")
-                break
+        if not made_transaction:
+            for holding, weight in self.holdings.items():
+                if (holding not in old_holdings and weight != 0) or (holding in old_holdings and weight != old_holdings[holding]):
+                    self.transaction_count += 1
+                    logger.info(f"current count: {self.transaction_count}, old_holding: {old_holdings}, new_holding: {self.holdings}")
+                    break
 
     def get_total_assets(self):
         return self.total_assets
@@ -124,7 +130,7 @@ if __name__ == "__main__":
     new_options = ['EBAY', 'FB', 'TWTR', 'NFLX', 'AAPL', 'AMAZ', 'GOOGL', 'MSFT', 'TSLA']
     print(trader.options)
     print(trader.holdings)
-    trader.update_stock_price('aapl', 10)
+    trader.update_stock_prices('aapl', 10)
     print(trader.holdings)
     print(trader.cash)
     print(trader.total_assets)
